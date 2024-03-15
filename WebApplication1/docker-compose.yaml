@@ -1,0 +1,11 @@
+version: "3.1"
+
+services:
+  postgre:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: Sandbox
+      POSTGRES_USER: kvp
+      POSTGRES_PASSWORD: john_cena
