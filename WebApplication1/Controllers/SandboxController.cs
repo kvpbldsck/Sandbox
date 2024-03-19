@@ -189,6 +189,36 @@ public sealed class SandboxController : ControllerBase
             deserializedWithNull,
             deserializedWithout
         };
+        
+        /*
+        {
+            "withTrue": {
+                "isCancelledForever": true
+            },
+            "withFalse": {
+                "isCancelledForever": false
+            },
+            "withNull": {
+                "isCancelledForever": null
+            },
+            "serializedWithTrue": "<SandboxController.XmlTest xmlns=\"http://schemas.datacontract.org/2004/07/WebApplication1.Controllers\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\"><IsCancelledForever>true</IsCancelledForever></SandboxController.XmlTest>",
+            "serializedWithFalse": "<SandboxController.XmlTest xmlns=\"http://schemas.datacontract.org/2004/07/WebApplication1.Controllers\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\"><IsCancelledForever>false</IsCancelledForever></SandboxController.XmlTest>",
+            "serializedWithNull": "<SandboxController.XmlTest xmlns=\"http://schemas.datacontract.org/2004/07/WebApplication1.Controllers\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\"><IsCancelledForever i:nil=\"true\"/></SandboxController.XmlTest>",
+            "serializedWithout": "<SandboxController.XmlTest xmlns=\"http://schemas.datacontract.org/2004/07/WebApplication1.Controllers\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\"></SandboxController.XmlTest>",
+            "deserializedWithTrue": {
+                "isCancelledForever": true
+            },
+            "deserializedWithFalse": {
+                "isCancelledForever": false
+            },
+            "deserializedWithNull": {
+                "isCancelledForever": null
+            },
+            "deserializedWithout": {
+                "isCancelledForever": null
+            }
+        }
+        */ 
     }
 
     public class XmlTest
