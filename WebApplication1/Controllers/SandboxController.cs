@@ -1,10 +1,21 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Text.Json;
+using System.Xml;
+using System.Xml.Serialization;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Refit;
+using WebApplication1.Extensions;
 using WebApplication1.Models;
 using WebApplication1.Services;
 using WebApplication1.Settings;
+using Formatting = Newtonsoft.Json.Formatting;
+using JsonException = System.Text.Json.JsonException;
 
 namespace WebApplication1.Controllers;
 
@@ -99,5 +110,90 @@ public sealed class SandboxController : ControllerBase
         {
             return "Caught " + e.Message;
         }
+    }
+    
+    [HttpPost("check-json")]
+    public object CheckJson([FromBody] Dictionary<string, object> whatToWrite)
+    {
+        try
+        {
+            var json = new JObject();
+            foreach (var (key, value) in whatToWrite)
+            {
+                json.WriteAtPath(key, JToken.FromObject(value));
+            }
+            return json.ToString(Formatting.Indented);
+        }
+        catch (Exception e)
+        {
+            return "Caught " + e.Message;
+        }
+    }
+    
+    [HttpGet("check-xml")]
+    public object CheckXml()
+    {
+        var withTrue = new XmlTest { IsCancelledForever = true };
+        var withFalse = new XmlTest { IsCancelledForever = false };
+        var withNull = new XmlTest { IsCancelledForever = null };
+        
+        using var writer1 = new MemoryStream();
+        using var writer2 = new MemoryStream();
+        using var writer3 = new MemoryStream();
+        using var writer4 = new MemoryStream(Encoding.UTF8.GetBytes(@"<SandboxController.XmlTest xmlns=""http://schemas.datacontract.org/2004/07/WebApplication1.Controllers"" xmlns:i=""http://www.w3.org/2001/XMLSchema-instance""></SandboxController.XmlTest>"));
+        
+        var serializer = new DataContractSerializer(typeof(XmlTest), new DataContractSerializerSettings() {  });
+
+        serializer.WriteObject(writer1, withTrue);
+        serializer.WriteObject(writer2, withFalse);
+        serializer.WriteObject(writer3, withNull);
+
+        writer1.Seek(0, SeekOrigin.Begin);
+        writer2.Seek(0, SeekOrigin.Begin);
+        writer3.Seek(0, SeekOrigin.Begin);
+        writer4.Seek(0, SeekOrigin.Begin);
+        
+        var serializedWithTrue = Encoding.UTF8.GetString(writer1.ToArray());
+        var serializedWithFalse = Encoding.UTF8.GetString(writer2.ToArray());
+        var serializedWithNull = Encoding.UTF8.GetString(writer3.ToArray());
+        var serializedWithout = Encoding.UTF8.GetString(writer4.ToArray());
+        
+        writer1.Seek(0, SeekOrigin.Begin);
+        writer2.Seek(0, SeekOrigin.Begin);
+        writer3.Seek(0, SeekOrigin.Begin);
+        writer4.Seek(0, SeekOrigin.Begin);
+        
+        using var reader1 = new StringReader(serializedWithTrue);
+        using var reader2 = new StringReader(serializedWithFalse);
+        using var reader3 = new StringReader(serializedWithNull);
+        using var reader4 = new StringReader(serializedWithout);
+        
+        var deserializedWithTrue = serializer.ReadObject(writer1);
+        var deserializedWithFalse = serializer.ReadObject(writer2);
+        var deserializedWithNull = serializer.ReadObject(writer3);
+        var deserializedWithout = serializer.ReadObject(writer4);
+
+        return new
+        {
+            withTrue,
+            withFalse,
+            withNull,
+
+            serializedWithTrue,
+            serializedWithFalse,
+            serializedWithNull,
+            serializedWithout,
+
+            deserializedWithTrue,
+            deserializedWithFalse,
+            deserializedWithNull,
+            deserializedWithout
+        };
+    }
+
+    public class XmlTest
+    {
+        [DataMember(EmitDefaultValue = false)]
+        public bool? IsCancelledForever { get; set; }
     }
 }

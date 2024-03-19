@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<SetCheckSettings>(builder.Configuration.GetSection(SetCheckSettings.Section));
 builder.Services.Configure<DictCheckSettings>(builder.Configuration.GetSection(DictCheckSettings.Section));
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
